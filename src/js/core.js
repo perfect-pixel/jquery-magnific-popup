@@ -28,7 +28,7 @@ var CLOSE_EVENT = 'Close',
 /*jshint -W079 */
 var mfp, // As we have only one instance of MagnificPopup object, we define it locally to not to use 'this'
 	MagnificPopup = function(){},
-	_isJQ = !!(window.jQuery),
+	_isJQ = !!(window.jQuery) || typeof jQuery !== 'undefined',
 	_prevStatus,
 	_window = $(window),
 	_document,
@@ -72,7 +72,7 @@ var _mfpOn = function(name, f) {
 	},
 	_getCloseBtn = function(type) {
 		if(type !== _currPopupType || !mfp.currTemplate.closeBtn) {
-			mfp.currTemplate.closeBtn = $( mfp.st.closeMarkup.replace('%title%', mfp.st.tClose ) );
+			mfp.currTemplate.closeBtn = $( mfp.st.closeMarkup.replace(/%title%/g, mfp.st.tClose ) );
 			_currPopupType = type;
 		}
 		return mfp.currTemplate.closeBtn;
@@ -353,7 +353,15 @@ MagnificPopup.prototype = {
 			}
 			
 			// Trap the focus in popup
-			_document.on('focusin' + EVENT_NS, mfp._onFocusIn);
+      if(!('onfocusin' in window) && document.addEventListener) {
+        // In browsers which do not support focusin but have
+        // addEventListener, fall back to focus with capture.
+        // Note: Some browsers do not have onfocusin even though they
+        // support focusin.
+        document.addEventListener('focus', mfp._onFocusIn, true);
+      } else {
+        _document.on('focusin' + EVENT_NS, mfp._onFocusIn);
+      }
 
 		}, 16);
 
@@ -413,6 +421,10 @@ MagnificPopup.prototype = {
 		
 		_document.off('keyup' + EVENT_NS + ' focusin' + EVENT_NS);
 		mfp.ev.off(EVENT_NS);
+
+    if(!('onfocusin' in window) && document.addEventListener) {
+			document.removeEventListener('focus', mfp._onFocusIn, true);
+		}
 
 		// clean up DOM elements that aren't removed
 		mfp.wrap.attr('class', 'mfp-wrap').removeAttr('style');
@@ -876,7 +888,7 @@ $.magnificPopup = {
 
 		overflowY: 'auto',
 
-		closeMarkup: '<button title="%title%" type="button" class="mfp-close">&#215;</button>',
+		closeMarkup: '<button title="%title%" type="button" class="mfp-close" aria-label="%title%"><span aria-hidden="true">&times;</span></button>',
 
 		tClose: 'Close (Esc)',
 

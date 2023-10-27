@@ -190,7 +190,7 @@ $.magnificPopup.registerModule('image', {
 				var img = document.createElement('img');
 				img.className = 'mfp-img';
 				if(item.el && item.el.find('img').length) {
-					img.alt = item.el.find('img').attr('alt');
+          img.alt = item.el.find('img').attr('alt') || '';
 				}
 				item.img = $(img).on('load.mfploader', onLoadComplete).on('error.mfploader', onLoadError);
 				img.src = item.src;
