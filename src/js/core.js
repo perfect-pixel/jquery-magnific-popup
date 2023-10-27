@@ -443,7 +443,7 @@ MagnificPopup.prototype = {
 
 
 		if(mfp.st.autoFocusLast && mfp._lastFocusedEl) {
-			$(mfp._lastFocusedEl).focus(); // put tab focus back
+			$(mfp._lastFocusedEl).trigger('focus'); // put tab focus back
 		}
 		mfp.currItem = null;	
 		mfp.content = null;
@@ -651,8 +651,8 @@ MagnificPopup.prototype = {
 		var disableOn = options.disableOn !== undefined ? options.disableOn : $.magnificPopup.defaults.disableOn;
 
 		if(disableOn) {
-			if($.isFunction(disableOn)) {
-				if( !disableOn.call(mfp, e) ) {
+			if(typeof disableOn === 'function') {
+				if( !disableOn.call(mfp) ) {
 					return true;
 				}
 			} else { // else it's number
@@ -768,15 +768,15 @@ MagnificPopup.prototype = {
 		if(mfp.st.focus) {
 			var el = mfp.content.find(mfp.st.focus).eq(0);
 			if(el.length) {
-				el.focus();
+				el.trigger('focus');
 				return;
 			}
 		}
-		mfp.wrap.focus();
+		mfp.wrap.trigger('focus');
 	},
 	_onFocusIn: function(e) {
 		if( e.target !== mfp.wrap[0] && !$.contains(mfp.wrap[0], e.target) ) {
-			mfp.wrap.focus();
+			mfp.wrap.trigger('focus');
 			return false;
 		}
 	},
